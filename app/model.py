@@ -5,7 +5,7 @@ class Address(BaseModel):
     street: str
     number: str
     floor: Optional[str]
-    coordinates: List[float, float]
+    coordinates: List[float]
     details: str
 
 class Household(BaseModel):
