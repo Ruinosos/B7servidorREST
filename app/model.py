@@ -26,6 +26,7 @@ class Household(BaseModel):
     host_email: str
     title: str
     description: str
+    '''ADDRESS'''
     address: Address
     photo: List[str]
     num_bathroom: int
