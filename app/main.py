@@ -3,6 +3,7 @@ from pymongo import MongoClient
 from dotenv import dotenv_values
 import uvicorn
 from routers.household_router import router as household_router
+from routers.book_router import router as book_router
 
 config = dotenv_values(".env")
 
@@ -20,6 +21,7 @@ def shutdown_db_client():
     app.mongodb_client.close()
 
 app.include_router(household_router, tags=["households"], prefix="/household")
+app.include_router(book_router, tags=["books"], prefix="/book")
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=8000)
