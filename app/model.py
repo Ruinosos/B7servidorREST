@@ -1,8 +1,10 @@
 from datetime import date
+import uuid
 from pydantic import BaseModel
-from typing import Union, List, Optional
+from typing import Union, List, Optional, Field
 
 class Address(BaseModel):
+    id: str = Field(default_factory=uuid.uuid4, alias="_id")
     street: str
     number: str
     floor: Optional[str]
@@ -11,6 +13,7 @@ class Address(BaseModel):
     details: str
 
 class User(BaseModel):
+    id: str = Field(default_factory=uuid.uuid4, alias="_id")
     username: str
     first_name: str
     last_name: str
@@ -21,6 +24,7 @@ class Period(BaseModel):
     end: date
 
 class Household(BaseModel):
+    id: str = Field(default_factory=uuid.uuid4, alias="_id")
     '''HOST'''
     host_username : str
     host_email: str
@@ -38,6 +42,7 @@ class Household(BaseModel):
 
 
 class Booking(BaseModel):
+    id: str = Field(default_factory=uuid.uuid4, alias="_id")
     period: Period
 
     '''HOST'''

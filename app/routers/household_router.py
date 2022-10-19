@@ -45,7 +45,7 @@ def get_household(request: Request):
 def delete_household(request: Request, response: Response):
     household_deleted = request.app.database["household"].delete_one({"_id": id})
 
-    if(household_deleted.deleted_count == 1):
+    if household_deleted.deleted_count:
         response.status_code = status.HTTP_204_NO_CONTENT
         return response
     
