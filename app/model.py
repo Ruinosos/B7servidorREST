@@ -3,14 +3,18 @@ import uuid
 from pydantic import BaseModel, Field
 from typing import Union, List, Optional
 
+class GeoJson(BaseModel):
+    latitude: float
+    longitude: float
+
 class Address(BaseModel):
     id: str = Field(default_factory=uuid.uuid4, alias="_id")
     street: str
     number: str
     floor: Optional[str]
-    geojson: List[float]
+    geojson: GeoJson
     postal_code: str
-    details: str
+    details: Optional[str]
 
 class User(BaseModel):
     id: str = Field(default_factory=uuid.uuid4, alias="_id")
@@ -19,6 +23,10 @@ class User(BaseModel):
     last_name: str
     email: str
 
+class HouseholdUser(BaseModel):
+    host_username : str
+    host_email: str
+
 class Period(BaseModel):
     start: date
     end: date
@@ -26,8 +34,7 @@ class Period(BaseModel):
 class Household(BaseModel):
     id: str = Field(default_factory=uuid.uuid4, alias="_id")
     '''HOST'''
-    host_username : str
-    host_email: str
+    host: HouseholdUser
     title: str
     description: str
     '''ADDRESS'''
