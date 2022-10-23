@@ -1,7 +1,7 @@
 from datetime import date
 import uuid
 from pydantic import BaseModel
-from typing import Union, List, Optional, Field
+from typing import Union, List, Optional
 
 class Address(BaseModel):
     id: str = Field(default_factory=uuid.uuid4, alias="_id")
