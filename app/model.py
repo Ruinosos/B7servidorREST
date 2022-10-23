@@ -1,6 +1,6 @@
 from datetime import date
 import uuid
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Union, List, Optional
 
 class Address(BaseModel):
