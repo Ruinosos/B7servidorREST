@@ -3,6 +3,7 @@ from fastapi.encoders import jsonable_encoder
 from typing import List
 from bson import ObjectId
 from model import Booking,BookingUpdate
+import datetime
 
 router = APIRouter()
 
@@ -64,3 +65,12 @@ def delete_booking(id:str,request: Request, response: Response):
         return response
     
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Booking with ID {id} not found")
+
+'''LIST ACTIVE BOOKINGS'''
+@router.get("_actives",response_description="List all active bookings", response_model=List[Booking])
+def list_bookings(request: Request):
+    active_bookings = list(request.app.database["booking"].find({
+    "ending": {
+        "$gte": str(datetime.datetime.now())
+    }},limit=100))
+    return active_bookings
