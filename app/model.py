@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from lib2to3.pgen2.token import OP
 import uuid
 from pydantic import BaseModel, Field
@@ -50,84 +50,22 @@ class Household(BaseModel):
     rating: float
     availability: List[Period]
 
-
 class Renter(BaseModel):
     username: str
     email: str
-
-    class Config:
-        allow_population_by_field_name = True
-        schema_extra = {
-            "username": "",
-            "email": "pedro@gmail.com"
-        }
-
-
-class Renter(BaseModel):
-    username: str
-    email: str
-
-    class Config:
-        allow_population_by_field_name = True
-        schema_extra = {
-            "username": "",
-            "email": "pedro@gmail.com"
-        }
 
 class BookedHouseholdAddress(BaseModel):
     street: str
-    number: str
-    postal_code: str
-    class Config:
-        allow_population_by_field_name = True
-        schema_extra = {
-            "street": "C/Garcilaso de la Vega",
-                "number": "30",
-                "postal_code": "29007"
-        }
-
+    number: int
+    postal_code: int
 
 class BookedHousehold(BaseModel):
-    id: Optional[str]
     title: str
     address: BookedHouseholdAddress
 
-    class Config:
-        allow_population_by_field_name = True
-        schema_extra = {
-            "title": "Piso en Teatinos",
-            "address": {
-                "street": "C/Garcilaso de la Vega",
-                "number": "30",
-                "postal_code": "29007"
-            }
-        }
-
 class Booking(BaseModel):
-    id: Optional[str]
-    start: str = Field(...)
-    ending: str = Field(...)
-    host_email: str = Field(...)
-    renter: Renter = Field(...)
-    household: BookedHousehold = Field(...)
-
-    class Config:
-        allow_population_by_field_name = True
-        schema_extra = {
-            "id": "1",
-            "start": "22/10/2022",
-            "ending": "23/10/2022",
-            "host_email": "jose@gmail.com",
-            "renter": {
-                "username": "carlos1234",
-                "email": "carlos@gmail.com"
-            },
-            "household": {
-                "title": "Piso en Teatinos",
-                "address": {
-                    "street": "C/Garcilaso de la Vega",
-                    "number": "30",
-                    "postal_code": "29007"
-                }
-            }
-        }
+    start: datetime
+    ending: datetime
+    host_email: str
+    renter: Renter
+    household: BookedHousehold
