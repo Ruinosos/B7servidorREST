@@ -32,6 +32,14 @@ class HouseholdUser(BaseModel):
 class HouseholdUserUpdate(BaseModel):
     host_username : Optional[str]
     host_email: Optional[str]
+    
+class RenterUser(BaseModel):
+    renter_username : str
+    renter_email: str
+
+class RenterUserUpdate(BaseModel):
+    renter_username : Optional[str]
+    renter_email: Optional[str]
 
 
 class Period(BaseModel):
@@ -68,7 +76,7 @@ class Booking(BaseModel):
     start: datetime
     ending: datetime
     host: HouseholdUser
-    renter: HouseholdUser
+    renter: RenterUser
     household: BookedHousehold
 
 class BookedHouseholdAddressUpdate(BaseModel):
@@ -84,5 +92,5 @@ class BookingUpdate(BaseModel):
     start: Optional[datetime]
     ending: Optional[datetime]
     host: Optional[HouseholdUserUpdate]
-    renter: Optional[HouseholdUserUpdate]
+    renter: Optional[RenterUserUpdate]
     household: Optional[BookedHouseholdUpdate]
