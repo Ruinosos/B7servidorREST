@@ -2,7 +2,7 @@ from fastapi import APIRouter, Body, Request, Response, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from typing import List
 from bson import ObjectId
-from model import Booking
+from model import Booking,BookingUpdate
 
 router = APIRouter()
 
@@ -33,26 +33,26 @@ def create_household(request: Request, Booking: Booking = Body(...)):
     return created_booking
 
 
-'''UPDATE BOOKING
+'''UPDATE BOOKING '''
 @router.put("/{id}", response_description="Update a book", response_model=Booking)
-def update_book(id: str, request: Request, booking: BookUpdate = Body(...)):
+def update_book(id: str, request: Request, booking: BookingUpdate = Body(...)):
     booking = {k: v for k, v in booking.dict().items() if v is not None}
 
     if len(booking) >= 1:
         update_result = request.app.database["booking"].update_one(
-            {"_id": id}, {"$set": booking}
+            {"_id": ObjectId(id)}, {"$set": booking}
         )
 
         if update_result.modified_count == 0:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Book with ID {id} not found")
 
     if (
-        existing_book := request.app.database["booking"].find_one({"_id": id})
+        existing_book := request.app.database["booking"].find_one({"_id":ObjectId(id)})
     ) is not None:
         return existing_book
 
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Book with ID {id} not found")
-'''
+
 
 '''DELETE BOOKING'''
 @router.delete("/{id}", response_description="Delete a booking")

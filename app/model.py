@@ -29,6 +29,11 @@ class HouseholdUser(BaseModel):
     host_username : str
     host_email: str
 
+class HouseholdUserUpdate(BaseModel):
+    host_username : Optional[str]
+    host_email: Optional[str]
+
+
 class Period(BaseModel):
     start: date
     end: date
@@ -50,10 +55,6 @@ class Household(BaseModel):
     rating: float
     availability: List[Period]
 
-class Renter(BaseModel):
-    username: str
-    email: str
-
 class BookedHouseholdAddress(BaseModel):
     street: str
     number: int
@@ -66,6 +67,22 @@ class BookedHousehold(BaseModel):
 class Booking(BaseModel):
     start: datetime
     ending: datetime
-    host_email: str
-    renter: Renter
+    host: HouseholdUser
+    renter: HouseholdUser
     household: BookedHousehold
+
+class BookedHouseholdAddressUpdate(BaseModel):
+    street: Optional[str]
+    number: Optional[int]
+    postal_code: Optional[int]
+
+class BookedHouseholdUpdate(BaseModel):
+    title: Optional[str]
+    address: Optional[BookedHouseholdAddress]
+
+class BookingUpdate(BaseModel):
+    start: Optional[datetime]
+    ending: Optional[datetime]
+    host: Optional[HouseholdUserUpdate]
+    renter: Optional[HouseholdUserUpdate]
+    household: Optional[BookedHouseholdUpdate]
