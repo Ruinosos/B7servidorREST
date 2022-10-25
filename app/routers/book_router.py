@@ -74,3 +74,11 @@ def list_bookings(request: Request):
         "$gte": str(datetime.datetime.now())
     }},limit=100))
     return active_bookings
+
+'''GET BOOKINGS OF AN USER ORDER BY DATE'''
+@router.get("/bookings_from/{username}", response_description="Get the bookings of an user ordered by date")
+def get_ordered_bookings(username: str, request: Request, response: Response):
+
+    bookings = list(request.app.database["booking"].find({"renter.renter_username": username},{'_id':0},limit = 100))
+    return bookings
+    
