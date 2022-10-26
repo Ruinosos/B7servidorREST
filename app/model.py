@@ -94,3 +94,18 @@ class BookingUpdate(BaseModel):
     host: Optional[HouseholdUserUpdate]
     renter: Optional[RenterUserUpdate]
     household: Optional[BookedHouseholdUpdate]
+
+class HouseholdUpdate(BaseModel):
+    '''HOST'''
+    host: Optional[HouseholdUser]
+    title: Optional[str]
+    description: Optional[str]
+    '''ADDRESS'''
+    address: Optional[Address]
+    photo: Optional[List[str]]
+    num_bathroom: Optional[int]
+    num_bed: Optional[int]
+    max_capacity: Optional[int]
+    price_euro_per_night: Optional[float]
+    rating: Optional[float]
+    availability: Optional[List[Period]]
