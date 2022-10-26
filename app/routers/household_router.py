@@ -2,6 +2,7 @@ from operator import truediv
 from fastapi import APIRouter, Body, Request, Response, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from typing import List
+from bson import ObjectId
 
 from model import Household, HouseholdUpdate
 
@@ -44,6 +45,7 @@ def delete_household(id:str, request: Request, response: Response):
     
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Household with ID {id} not found")
 
+
 '''UPDATE HOUSEHOLD'''
 @router.put("/{id}", response_description="Update a household")
 def update_household(id:str, request: Request, data: HouseholdUpdate):
@@ -56,4 +58,5 @@ def update_household(id:str, request: Request, data: HouseholdUpdate):
         if household_updated:
             return True
         return False
+
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Household with ID {id} not found")
