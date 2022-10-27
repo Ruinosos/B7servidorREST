@@ -1,15 +1,23 @@
 from datetime import date, datetime
 from lib2to3.pgen2.token import OP
 import uuid
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError, validator
 from typing import Union, List, Optional
+from datetime import date
 
 class GeoJson(BaseModel):
     latitude: float
     longitude: float
 
+class AddressUpdate(BaseModel):
+    street: Optional[str]
+    number: Optional[str]
+    floor: Optional[str]
+    geojson: Optional[GeoJson]
+    postal_code: Optional[str]
+    details: Optional[str]
+
 class Address(BaseModel):
-    id: str = Field(default_factory=uuid.uuid4, alias="_id")
     street: str
     number: str
     floor: Optional[str]
@@ -19,7 +27,7 @@ class Address(BaseModel):
 
 
 class User(BaseModel):
-    id: str = Field(default_factory=uuid.uuid4, alias="_id")
+    id: str = Field(default_factory=uuid.uuid4, alias="id")
     username: str
     first_name: str
     last_name: str
@@ -42,13 +50,12 @@ class RenterUserUpdate(BaseModel):
     renter_email: Optional[str]
 
 
-class Period(BaseModel):
-    start: date
-    end: date
-
+class Date(BaseModel):
+    date: datetime = Field(alias="$date", default=datetime.now())
+    
 
 class Household(BaseModel):
-    id: str = Field(default_factory=uuid.uuid4, alias="_id")
+    id: str = Field(default_factory=uuid.uuid4, alias="id")
     '''HOST'''
     host: HouseholdUser
     title: str
@@ -61,7 +68,16 @@ class Household(BaseModel):
     max_capacity: int
     price_euro_per_night: float
     rating: float
-    availability: List[Period]
+    availability: List[List[Date]]
+    
+    @validator("availability")
+    def check_dates_length(cls, v):
+        for i in v:
+            if not len(i) == 2:
+                raise ValueError("Wrong date format.")
+
+        return v
+    
 
 class BookedHouseholdAddress(BaseModel):
     street: str
@@ -97,15 +113,15 @@ class BookingUpdate(BaseModel):
 
 class HouseholdUpdate(BaseModel):
     '''HOST'''
-    host: Optional[HouseholdUser]
+    host: Optional[HouseholdUserUpdate]
     title: Optional[str]
     description: Optional[str]
     '''ADDRESS'''
-    address: Optional[Address]
+    address: Optional[AddressUpdate]
     photo: Optional[List[str]]
     num_bathroom: Optional[int]
     num_bed: Optional[int]
     max_capacity: Optional[int]
     price_euro_per_night: Optional[float]
     rating: Optional[float]
-    availability: Optional[List[Period]]
+    availability: Optional[List[List[Date]]]

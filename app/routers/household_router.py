@@ -29,7 +29,7 @@ def list_households(request: Request):
 '''GET HOUSEHOLD'''
 @router.get("/{id}", response_description="Get a single household", response_model=Household)
 def get_household(id:str, request: Request):
-    if(household := request.app.database["household"].find_one({"_id": id})) is not None:
+    if(household := request.app.database["household"].find_one({"id": id})) is not None:
         return household
 
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Household with ID {id} not found")
@@ -37,7 +37,7 @@ def get_household(id:str, request: Request):
 '''DELETE HOUSEHOLD'''
 @router.delete("/{id}", response_description="Delete a household")
 def delete_household(id:str, request: Request, response: Response):
-    household_deleted = request.app.database["household"].delete_one({"_id": id})
+    household_deleted = request.app.database["household"].delete_one({"id": id})
 
     if household_deleted.deleted_count:
         response.status_code = status.HTTP_204_NO_CONTENT
@@ -50,13 +50,31 @@ def delete_household(id:str, request: Request, response: Response):
 @router.put("/{id}", response_description="Update a household")
 def update_household(id:str, request: Request, data: HouseholdUpdate):
 
+    household = {k: v for k, v in data.dict().items() if v is not None}
+    
+    if len(household) >= 1:
+        update_result = request.app.database["household"].update_one(
+            {"id": id}, {"$set": household}
+        )
+
+        if update_result.modified_count == 0:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Household with ID {id} not found")
+
+    if (
+        existing_household := request.app.database["household"].find_one({"id":id})
+    ) is not None:
+        return existing_household
+
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Household with ID {id} not found")
+
+    '''
     if len(household) < 1:
         return False
-    household = request.app.database["household"].find_one({"_id": id})
+    household = request.app.database["household"].find_one({"id": id})
     if household:
-        household_updated = request.app.database["household"].update_one({"_id": id}, {"$set": data})
+        household_updated = request.app.database["household"].update_one({"id": id}, {"$set": data})
         if household_updated:
             return True
         return False
 
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Household with ID {id} not found")
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Household with ID {id} not found")'''
