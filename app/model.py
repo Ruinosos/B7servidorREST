@@ -85,10 +85,12 @@ class BookedHouseholdAddress(BaseModel):
     postal_code: int
 
 class BookedHousehold(BaseModel):
+    id : str
     title: str
     address: BookedHouseholdAddress
 
 class Booking(BaseModel):
+    id: str = Field(default_factory=uuid.uuid4, alias="id")
     start: datetime
     ending: datetime
     host: HouseholdUser

@@ -16,7 +16,7 @@ def list_bookings(request: Request):
 '''GET BOOKING'''
 @router.get("/{id}", response_description="Get a single booking", response_model=Booking)
 def get_booking(id:str, request: Request):
-    if(booking := request.app.database["booking"].find_one({"_id":ObjectId(id)})):
+    if(booking := request.app.database["booking"].find_one({"id":id})):
         return booking
 
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Booking with ID {id} not found")
@@ -41,14 +41,14 @@ def update_book(id: str, request: Request, booking: BookingUpdate = Body(...)):
 
     if len(booking) >= 1:
         update_result = request.app.database["booking"].update_one(
-            {"_id": ObjectId(id)}, {"$set": booking}
+            {"id": id}, {"$set": booking}
         )
 
         if update_result.modified_count == 0:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Book with ID {id} not found")
 
     if (
-        existing_book := request.app.database["booking"].find_one({"_id":ObjectId(id)})
+        existing_book := request.app.database["booking"].find_one({"id":id})
     ) is not None:
         return existing_book
 
@@ -58,7 +58,7 @@ def update_book(id: str, request: Request, booking: BookingUpdate = Body(...)):
 '''DELETE BOOKING'''
 @router.delete("/{id}", response_description="Delete a booking")
 def delete_booking(id:str,request: Request, response: Response):
-    booking_deleted = request.app.database["booking"].delete_one({"_id": ObjectId(id)})
+    booking_deleted = request.app.database["booking"].delete_one({"id": id})
 
     if booking_deleted.deleted_count:
         response.status_code = status.HTTP_204_NO_CONTENT
@@ -66,19 +66,35 @@ def delete_booking(id:str,request: Request, response: Response):
     
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Booking with ID {id} not found")
 
-'''LIST ACTIVE BOOKINGS'''
+'''LIST ACTIVE BOOKINGS (no relational)'''
 @router.get("_actives",response_description="List all active bookings", response_model=List[Booking])
-def list_bookings(request: Request):
+def list_active_bookings(request: Request):
     active_bookings = list(request.app.database["booking"].find({
     "ending": {
         "$gte": str(datetime.datetime.now())
-    }},limit=100))
+    }},limit=100).sort("start", -1))
     return active_bookings
 
-'''GET BOOKINGS OF AN USER ORDER BY DATE'''
-@router.get("/bookings_from/{username}", response_description="Get the bookings of an user ordered by date")
-def get_ordered_bookings(username: str, request: Request, response: Response):
+'''LIST INACTIVE BOOKINGS (no relational)'''
+@router.get("_inactives",response_description="List all active bookings", response_model=List[Booking])
+def list_incative_bookings(request: Request):
+    active_bookings = list(request.app.database["booking"].find({
+    "ending": {
+        "$lte": str(datetime.datetime.now())
+    }},limit=100).sort("start", -1))
+    return active_bookings
 
-    bookings = list(request.app.database["booking"].find({"renter.renter_username": username},{'_id':0},limit = 100))
+'''GET BOOKINGS OF AN USER ORDER BY DATE (relational)'''
+@router.get("/from_user/{username}", response_description="Get the bookings of an user ordered by date")
+def get_ordered_bookings_by_username(username: str, request: Request, response: Response):
+
+    bookings = list(request.app.database["booking"].find({"renter.renter_username": username},{'_id':0},limit = 100).sort("start", -1))
+    return bookings
+
+'''GET BOOKINGS OF A HOUSEHOLD ORDER BY DATE (relational)'''
+@router.get("/from_household/{household_id}", response_description="Get the bookings of a household ordered by date")
+def get_ordered_bookings_by_household_id(household_id: str, request: Request, response: Response):
+
+    bookings = list(request.app.database["booking"].find({"household.id": household_id},{'_id':0},limit = 100).sort("start", -1))
     return bookings
     
