@@ -78,6 +78,7 @@ class Household(BaseModel):
 
         return v
     
+    
 
 class BookedHouseholdAddress(BaseModel):
     street: str

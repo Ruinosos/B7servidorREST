@@ -2,11 +2,13 @@ from operator import truediv
 from fastapi import APIRouter, Body, Request, Response, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from typing import List
-from bson import ObjectId
+from typing import Optional
+from app.model import User
 
 from model import Household, HouseholdUpdate
 
 router = APIRouter()
+
 
 '''CREATE HOUSEHOLD'''
 @router.post("/", response_description="Create a new household", status_code=status.HTTP_201_CREATED, response_model=Household)
@@ -47,8 +49,8 @@ def delete_household(id:str, request: Request, response: Response):
 
 
 '''UPDATE HOUSEHOLD'''
-@router.put("/{id}", response_description="Update a household")
-def update_household(id:str, request: Request, data: HouseholdUpdate):
+@router.put("/{id}", response_description="Update a household", response_model=Household)
+def update_household(id:str, request: Request, data: HouseholdUpdate = Body(...)):
 
     household = {k: v for k, v in data.dict().items() if v is not None}
     
@@ -67,14 +69,20 @@ def update_household(id:str, request: Request, data: HouseholdUpdate):
 
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Household with ID {id} not found")
 
-    '''
-    if len(household) < 1:
-        return False
-    household = request.app.database["household"].find_one({"id": id})
-    if household:
-        household_updated = request.app.database["household"].update_one({"id": id}, {"$set": data})
-        if household_updated:
-            return True
-        return False
+'''LIST HOUSEHOLDS OF A USER'''
+@router.get("/{username}", response_description="Get the list of Households of a user", response_model=List[Household])
+def list_households_by_user(username : str, request : Request, response : Response):
+    households = list(request.app.database["household"].find({"host.host_username": username}, limit = 100))
+    return households
 
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Household with ID {id} not found")'''
+'''LIST HOUSEHOLDS FILTERED BY PRICE'''
+@router.get("/filter/price", response_description="Filter households by price", response_model=List[Household])
+def list_households_by_price( request : Request, max_price : Optional[float], min_price : Optional[float]=0):
+    households = list(request.app.database["household"].find({"price_euro_per_night":{"$gte":min_price, "$lte":max_price}}, limit=100))
+    return households
+
+'''GET USER FROM USERNAME'''
+@router.get("/owners/{username}", response_description="Get user from username", response_model=User)
+def get_user_by_username(username :str, request : Request):
+    return
+    email = request.app.database["household"].find({""})
