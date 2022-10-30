@@ -49,7 +49,7 @@ def delete_household(id:str, request: Request, response: Response):
 '''UPDATE HOUSEHOLD'''
 @router.put("/{id}", response_description="Update a household")
 def update_household(id:str, request: Request, data: HouseholdUpdate):
-
+    print(data.dict())
     household = {k: v for k, v in data.dict().items() if v is not None}
     
     if len(household) >= 1:
