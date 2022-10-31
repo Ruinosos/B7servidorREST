@@ -3,7 +3,7 @@ from fastapi import APIRouter, Body, Request, Response, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from typing import List
 from typing import Optional
-from model import User, Booking
+from model import User, Booking, Address
 
 from model import Household, HouseholdUpdate
 
@@ -35,6 +35,18 @@ def get_household(id:str, request: Request):
         return household
 
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Household with ID {id} not found")
+
+'''DELETE ALL HOUSEHOLDS'''
+@router.delete("/delete_all", response_description="Delete all households")
+def delete_all_household(request: Request, response: Response):
+    household_deleted = request.app.database["household"].delete_many({})
+
+    if household_deleted.deleted_count:
+        response.status_code = status.HTTP_204_NO_CONTENT
+        return response
+
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Household not found")
+
 
 '''DELETE HOUSEHOLD'''
 @router.delete("/{id}", response_description="Delete a household")
@@ -87,8 +99,12 @@ def get_user_by_username(username :str, request : Request):
     return
     email = request.app.database["household"].find({""})
 
-'''GET BOOKINGS OF A HOUSEHOLD'''
-@router.get("/bookings/{id}", response_description="Get bookings of a household", response_model=List[Booking])
-def get_bookings_of_household(id : str, request : Request):
-    bookings = list(request.app.database["booking"].find({"household_id": id}, limit=100))
-    return bookings
+'''GET ADRESS OF A HOUSEHOLD'''
+@router.get("/address/{id}", response_description="Get address of a household", response_model=Address)
+def get_adress_of_household(id : str, request : Request):
+     
+    household = request.app.database["household"].find_one({"id":id})
+    id_addres = household["address"]["id"]
+    address = request.app.database["address"].find_one({"id":id_addres})
+
+    return address
