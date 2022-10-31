@@ -18,12 +18,19 @@ class AddressUpdate(BaseModel):
     details: Optional[str]
 
 class Address(BaseModel):
+    id: str = Field(default_factory=uuid.uuid4, alias="id")
     street: str
     number: str
     floor: Optional[str]
     geojson: GeoJson
     postal_code: str
     details: Optional[str]
+
+class AddressHouseHold(BaseModel):
+    id: str = Field(default_factory=uuid.uuid4, alias="id")
+    street: str
+    number: str
+    geojson: GeoJson
 
 
 class User(BaseModel):
@@ -61,7 +68,7 @@ class Household(BaseModel):
     title: str
     description: str
     '''ADDRESS'''
-    address: Address
+    address: AddressHouseHold
     photo: List[str]
     num_bathroom: int
     num_bed: int
