@@ -8,29 +8,10 @@ import datetime
 router = APIRouter()
 
 '''LIST BOOKINGS'''
-@router.get("",response_description="List all bookings", response_model=List[Booking])
+@router.get("/",response_description="List all bookings", response_model=List[Booking])
 def list_bookings(request: Request):
     bookings = list(request.app.database["booking"].find(limit=100))
     return bookings
-
-'''LIST ACTIVE BOOKINGS (no relational)'''
-@router.get("actives",response_description="List all active bookings", response_model=List[Booking])
-def list_active_bookings(request: Request):
-    active_bookings = list(request.app.database["booking"].find({
-    "ending": {
-        "$gte": str(datetime.datetime.now())
-    }},limit=100).sort("start", -1))
-    return active_bookings
-
-'''LIST INACTIVE BOOKINGS (no relational)'''
-@router.get("inactives",response_description="List all active bookings", response_model=List[Booking])
-def list_incative_bookings(request: Request):
-    active_bookings = list(request.app.database["booking"].find({
-    "ending": {
-        "$lte": str(datetime.datetime.now())
-    }},limit=100).sort("start", -1))
-    return active_bookings
-
 
 '''GET BOOKING'''
 @router.get("/{id}", response_description="Get a single booking", response_model=Booking)
@@ -84,6 +65,24 @@ def delete_booking(id:str,request: Request, response: Response):
         return response
     
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Booking with ID {id} not found")
+
+'''LIST ACTIVE BOOKINGS (no relational)'''
+@router.get("_actives",response_description="List all active bookings", response_model=List[Booking])
+def list_active_bookings(request: Request):
+    active_bookings = list(request.app.database["booking"].find({
+    "ending": {
+        "$gte": str(datetime.datetime.now())
+    }},limit=100).sort("start", -1))
+    return active_bookings
+
+'''LIST INACTIVE BOOKINGS (no relational)'''
+@router.get("_inactives",response_description="List all active bookings", response_model=List[Booking])
+def list_incative_bookings(request: Request):
+    active_bookings = list(request.app.database["booking"].find({
+    "ending": {
+        "$lte": str(datetime.datetime.now())
+    }},limit=100).sort("start", -1))
+    return active_bookings
 
 '''GET BOOKINGS OF AN USER ORDER BY DATE (relational)'''
 @router.get("/from_user/{username}", response_description="Get the bookings of an user ordered by date")
