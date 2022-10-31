@@ -104,6 +104,7 @@ class BookedHouseholdAddressUpdate(BaseModel):
     postal_code: Optional[int]
 
 class BookedHouseholdUpdate(BaseModel):
+    id: Optional[str]
     title: Optional[str]
     address: Optional[BookedHouseholdAddress]
 
