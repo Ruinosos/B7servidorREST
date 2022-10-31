@@ -3,7 +3,7 @@ from fastapi import APIRouter, Body, Request, Response, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from typing import List
 from typing import Optional
-from app.model import User
+from model import User, Booking
 
 from model import Household, HouseholdUpdate
 
@@ -86,3 +86,9 @@ def list_households_by_price( request : Request, max_price : Optional[float], mi
 def get_user_by_username(username :str, request : Request):
     return
     email = request.app.database["household"].find({""})
+
+'''GET BOOKINGS OF A HOUSEHOLD'''
+@router.get("/bookings/{id}", response_description="Get bookings of a household", response_model=List[Booking])
+def get_bookings_of_household(id : str, request : Request):
+    bookings = list(request.app.database["booking"].find({"household_id": id}, limit=100))
+    return bookings
