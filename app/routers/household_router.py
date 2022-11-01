@@ -93,15 +93,17 @@ def list_households_by_price( request : Request, max_price : Optional[float], mi
     households = list(request.app.database["household"].find({"price_euro_per_night":{"$gte":min_price, "$lte":max_price}}, limit=100))
     return households
 
-'''GET USER FROM USERNAME'''
-@router.get("/owners/{username}", response_description="Get user from username", response_model=User)
-def get_user_by_username(username :str, request : Request):
-    return
-    email = request.app.database["household"].find({""})
+'''GET USER FROM HOUSEHOLD'''
+@router.get("/owners/{id}", response_description="Get user of a households host", response_model=User)
+def get_use(id : str, request : Request):
+    household = request.app.database["household"].find_one({"id":id})
+    host_username = household["host"]["host_username"]
+    host = request.app.database["user"].find_one({"username":host_username})
+    return host
 
 '''GET ADRESS OF A HOUSEHOLD'''
 @router.get("/address/{id}", response_description="Get address of a household", response_model=Address)
-def get_adress_of_household(id : str, request : Request):
+def get_address_of_household(id : str, request : Request):
      
     household = request.app.database["household"].find_one({"id":id})
     id_addres = household["address"]["id"]
