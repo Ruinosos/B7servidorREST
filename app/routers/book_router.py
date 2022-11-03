@@ -3,6 +3,7 @@ from fastapi.encoders import jsonable_encoder
 from typing import List
 from model import Booking,BookingUpdate
 from datetime import datetime 
+from routers import household_router
 
 router = APIRouter()
 
@@ -25,6 +26,16 @@ def get_booking(id:str, request: Request):
 def create_household(request: Request, Booking: Booking = Body(...)):
 
     Booking = jsonable_encoder(Booking)
+    
+    household = household_router.get_household(Booking.get('household').get('id'), request)
+    Booking['household']['title'] = household.get('title')
+    Booking['household']['address']['street'] = household.get('address').get('street')
+    Booking['household']['address']['number'] = household.get('address').get('number')
+    #Booking['household']['address']['postal_code'] = household.get('address').get('postal_code')
+    
+    #Get and set host and renter data
+    
+    
     new_booking= request.app.database["booking"].insert_one(Booking)
     created_booking = request.app.database["booking"].find_one(
         {"_id": new_booking.inserted_id}
@@ -45,6 +56,9 @@ def create_household(request: Request, Booking: Booking = Body(...)):
         raise ValueError("Start date must be in the future")
     if endingDate < datetime.now():
         raise ValueError("Ending date must be in the future")
+    
+    
+    
     
     return created_booking
 
@@ -123,4 +137,3 @@ def get_ordered_bookings_by_household_id(household_id: str, request: Request, re
 
     bookings = list(request.app.database["booking"].find({"household.id": household_id},{'_id':0},limit = 100).sort("start", -1))
     return bookings
-    
