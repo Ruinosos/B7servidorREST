@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Body, Request, Response, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from typing import List
-from bson import ObjectId
 from model import Booking,BookingUpdate
-import datetime
+from datetime import datetime 
 
 router = APIRouter()
 
@@ -31,6 +30,22 @@ def create_household(request: Request, Booking: Booking = Body(...)):
         {"_id": new_booking.inserted_id}
     )
 
+    format_data = '%Y-%m-%dT%H:%M:%S.%f'
+    try:
+        startDate = datetime.strptime(Booking.get('start'),format_data)
+    except ValueError:
+        print('Start datetime format not valid')
+
+    try:
+        endingDate = datetime.strptime(Booking.get('ending'),format_data)
+    except ValueError:
+        print('Ending datetime format not valid')
+        
+    if startDate < datetime.now():
+        raise ValueError("Start date must be in the future")
+    if endingDate < datetime.now():
+        raise ValueError("Ending date must be in the future")
+    
     return created_booking
 
 
@@ -71,7 +86,7 @@ def delete_booking(id:str,request: Request, response: Response):
 def list_active_bookings(request: Request):
     active_bookings = list(request.app.database["booking"].find({
     "ending": {
-        "$gte": str(datetime.datetime.now())
+        "$gte": str(datetime.now())
     }},limit=100).sort("start", -1))
     return active_bookings
 
@@ -80,7 +95,7 @@ def list_active_bookings(request: Request):
 def list_incative_bookings(request: Request):
     active_bookings = list(request.app.database["booking"].find({
     "ending": {
-        "$lte": str(datetime.datetime.now())
+        "$lte": str(datetime.now())
     }},limit=100).sort("start", -1))
     return active_bookings
 
