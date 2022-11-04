@@ -2,8 +2,9 @@ from operator import truediv
 from pydoc import doc
 from fastapi import APIRouter, Body, Request, Response, HTTPException, status
 from fastapi.encoders import jsonable_encoder
-from typing import List, Optional, Union
-from model import User, Booking, Address
+from typing import List
+from typing import Optional
+from model import User, Address
 
 from model import Household, HouseholdUpdate
 
