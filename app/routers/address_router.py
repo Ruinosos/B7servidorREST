@@ -17,3 +17,14 @@ def create_address(request: Request, address: Address = Body(...)):
     )
 
     return created_address
+
+'''DELETE ADDRESS'''
+@router.delete("/{id}", response_description="Delete an address")
+def delete_address(id:str, request: Request, response: Response):
+    address_deleted = request.app.database["address"].delete_one({"id": id})
+
+    if address_deleted.deleted_count:
+        response.status_code = status.HTTP_204_NO_CONTENT
+        return response
+
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Address not found")

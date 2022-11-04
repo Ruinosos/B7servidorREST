@@ -35,7 +35,7 @@ class Address(BaseModel):
     number: str
     floor: Optional[str]
     geojson: GeoJson
-    postal_code: str
+    postal_code: Optional[str]
     details: Optional[str]
     @validator('geojson')
     def geojson_must_be_valid(cls, v):
