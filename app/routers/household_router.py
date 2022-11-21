@@ -104,13 +104,8 @@ def get_use(id : str, request : Request):
 
 '''GET ADRESS OF A HOUSEHOLD'''
 @router.get("/address/{id}", response_description="Get address of a household", response_model=Address)
-<<<<<<< HEAD
-def get_adress_of_household(id : str, request : Request):
-    
-=======
 def get_address_of_household(id : str, request : Request):
      
->>>>>>> 11a2cdc0825c1ba92dd50494e0eeb18ae253a901
     household = request.app.database["household"].find_one({"id":id})
     id_addres = household["address"]["id"]
     address = request.app.database["address"].find_one({"id":id_addres})

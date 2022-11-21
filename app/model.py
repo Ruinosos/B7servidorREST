@@ -5,18 +5,22 @@ from pydantic import BaseModel, Field, ValidationError, validator
 from typing import Union, List, Optional
 from datetime import date
 
+
 class GeoJson(BaseModel):
-    latitude: float
-    longitude: float
-    @validator('latitude') 
-    def latitude_must_be_between_minus_90_and_90(cls, v):
-        if not -90 <= v <= 90:
-            raise ValueError('latitude must be between -90 and 90')
+    type : str
+    coordinates : List[float]
+    @validator('type')
+    def type_must_be_point(cls, v):
+        if v != "Point":
+            raise ValueError("Type must be Point")
         return v
-    @validator('longitude')
-    def longitude_must_be_between_minus_180_and_180(cls, v):
-        if not -180 <= v <= 180:
-            raise ValueError('longitude must be between -180 and 180')
+    @validator('coordinates')
+    def coordinates_must_be_list_of_floats(cls, v):
+        if len(v) != 2:
+            raise ValueError("Coordinates must be a list of 2 floats")
+        for i in v:
+            if type(i) != float:
+                raise ValueError("Coordinates must be a list of 2 floats")
         return v
 
 class AddressUpdate(BaseModel):
