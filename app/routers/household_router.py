@@ -4,7 +4,7 @@ from fastapi import APIRouter, Body, Request, Response, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from typing import List
 from typing import Optional
-from model import User, Booking, Address
+from model import User, Address
 
 from model import Household, HouseholdUpdate
 
@@ -15,12 +15,15 @@ router = APIRouter()
 @router.post("/", response_description="Create a new household", status_code=status.HTTP_201_CREATED, response_model=Household)
 def create_household(request: Request, household: Household = Body(...)):
 
+    address = jsonable_encoder(household.address)
     household = jsonable_encoder(household)
+
     new_household = request.app.database["household"].insert_one(household)
     created_household = request.app.database["household"].find_one(
         {"_id": new_household.inserted_id}
     )
-
+    
+    new_address = request.app.database["address"].insert_one(address)
     return created_household
 
 '''LIST HOUSEHOLDS'''
@@ -83,9 +86,11 @@ def update_household(id:str, request: Request, data: HouseholdUpdate = Body(...)
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Household with ID {id} not found")
 
 '''LIST HOUSEHOLDS OF A USER'''
-@router.get("/{username}", response_description="Get the list of Households of a user", response_model=List[Household])
-def list_households_by_user(username : str, request : Request, response : Response):
-    households = list(request.app.database["household"].find({"host.host_username": username}, limit = 100))
+@router.get("/filter/username", response_description="Get the list of Households of a user", response_model=List[Household])
+def list_households_by_user(request : Request, response : Response,  name : Optional[str]="/*"):
+    
+    households = list(request.app.database["household"].find({"host.host_username": {"$regex": name}}, limit = 100))
+
     return households
 
 '''LIST HOUSEHOLDS FILTERED BY PRICE'''
@@ -102,12 +107,12 @@ def get_use(id : str, request : Request):
     host = request.app.database["user"].find_one({"username":host_username})
     return host
 
-'''GET ADRESS OF A HOUSEHOLD'''
+'''GET ADDRESS OF A HOUSEHOLD'''
 @router.get("/address/{id}", response_description="Get address of a household", response_model=Address)
 def get_address_of_household(id : str, request : Request):
      
     household = request.app.database["household"].find_one({"id":id})
-    id_addres = household["address"]["id"]
-    address = request.app.database["address"].find_one({"id":id_addres})
+    id_address = household["address"]["id"]
+    address = request.app.database["address"].find_one({"id":id_address})
 
     return address

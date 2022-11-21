@@ -5,6 +5,7 @@ import uvicorn
 from routers.household_router import router as household_router
 from routers.book_router import router as book_router
 from routers.address_router import router as address_router
+from routers.users_router import router as user_router
 
 config = dotenv_values(".env")
 
@@ -24,6 +25,7 @@ def shutdown_db_client():
 app.include_router(household_router, tags=["households"], prefix="/households")
 app.include_router(book_router, tags=["bookings"], prefix="/bookings")
 app.include_router(address_router, tags=["addresses"], prefix="/addresses")
+app.include_router(user_router, tags=["users"], prefix="/users")
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

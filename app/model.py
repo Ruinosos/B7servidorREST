@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from lib2to3.pgen2.token import OP
 import uuid
-from pydantic import BaseModel, Field, ValidationError, validator
+from pydantic import BaseModel, Field, ValidationError, validator, root_validator
 from typing import Union, List, Optional
 from datetime import date
 
@@ -28,7 +28,7 @@ class AddressUpdate(BaseModel):
     number: Optional[str]
     floor: Optional[str]
     geojson: Optional[GeoJson]
-    postal_code: Optional[str]
+    postal_code: Optional[int]
     details: Optional[str]
 
     
@@ -39,9 +39,9 @@ class Address(BaseModel):
     number: str
     floor: Optional[str]
     geojson: GeoJson
-    postal_code: str
+    postal_code: Optional[int]
     details: Optional[str]
-    @validator('geojson')
+    @validator("geojson")
     def geojson_must_be_valid(cls, v):
         if not isinstance(v, GeoJson):
             raise ValueError('geojson must be a GeoJson')
@@ -60,7 +60,7 @@ class User(BaseModel):
     first_name: str
     last_name: str
     email: str
-    @validator('email')
+    @validator("email")
     def email_must_be_valid(cls, v):
         if not '@' in v:
             raise ValueError('email must be valid')
@@ -69,19 +69,38 @@ class User(BaseModel):
 class HouseholdUser(BaseModel):
     host_username : str
     host_email: str
+    @validator("host_email")
+    def email_must_be_valid(cls, v):
+        if not '@' in v:
+            raise ValueError('email must be valid')
+        return v
 
 class HouseholdUserUpdate(BaseModel):
     host_username : Optional[str]
     host_email: Optional[str]
-    
+    @validator("host_email")
+    def email_must_be_valid(cls, v):
+        if not '@' in v:
+            raise ValueError('email must be valid')
+        return v
+
 class RenterUser(BaseModel):
     renter_username : str
     renter_email: str
+    @validator("renter_email")
+    def email_must_be_valid(cls, v):
+        if not '@' in v:
+            raise ValueError('email must be valid')
+        return v
 
 class RenterUserUpdate(BaseModel):
     renter_username : Optional[str]
     renter_email: Optional[str]
-
+    @validator("renter_email")
+    def email_must_be_valid(cls, v):
+        if not '@' in v:
+            raise ValueError('email must be valid')
+        return v
 
 class Date(BaseModel):
     date: datetime = Field(alias="$date", default=datetime.now())
@@ -136,8 +155,6 @@ class Household(BaseModel):
 
         return v
     
-    
-
 class BookedHouseholdAddress(BaseModel):
     street: str
     number: int
@@ -155,21 +172,11 @@ class Booking(BaseModel):
     host: HouseholdUser
     renter: RenterUser
     household: BookedHousehold
-    @validator("start")
-    def check_start_date(cls, v):
-        if v < datetime.now():
-            raise ValueError("start date must be in the future")
-        return v
-    @validator("ending")
-    def check_ending_date(cls, v):
-        if v < datetime.now():
-            raise ValueError("ending date must be in the future")
-        return v
-    @validator("start", "ending")
-    def check_start_ending_dates(cls, v, values):
-        if v < values["start"]:
+    @root_validator
+    def check_start_ending_dates(cls, values):
+        if values.get('ending') < values.get('start'):
             raise ValueError("ending date must be after start date")
-        return v
+        return values
 
 class BookedHouseholdAddressUpdate(BaseModel):
     street: Optional[str]

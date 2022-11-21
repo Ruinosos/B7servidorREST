@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Body, Request, Response, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from typing import List
-from bson import ObjectId
 from model import Booking,BookingUpdate
-import datetime
+from datetime import datetime 
+from routers import household_router
 
 router = APIRouter()
 
@@ -26,11 +26,40 @@ def get_booking(id:str, request: Request):
 def create_household(request: Request, Booking: Booking = Body(...)):
 
     Booking = jsonable_encoder(Booking)
+    
+    household = household_router.get_household(Booking.get('household').get('id'), request)
+    Booking['household']['title'] = household.get('title')
+    Booking['household']['address']['street'] = household.get('address').get('street')
+    Booking['household']['address']['number'] = household.get('address').get('number')
+    #Booking['household']['address']['postal_code'] = household.get('address').get('postal_code')
+    
+    #Get and set host and renter data
+    
+    
     new_booking= request.app.database["booking"].insert_one(Booking)
     created_booking = request.app.database["booking"].find_one(
         {"_id": new_booking.inserted_id}
     )
 
+    format_data = '%Y-%m-%dT%H:%M:%S.%f'
+    try:
+        startDate = datetime.strptime(Booking.get('start'),format_data)
+    except ValueError:
+        print('Start datetime format not valid')
+
+    try:
+        endingDate = datetime.strptime(Booking.get('ending'),format_data)
+    except ValueError:
+        print('Ending datetime format not valid')
+        
+    if startDate < datetime.now():
+        raise ValueError("Start date must be in the future")
+    if endingDate < datetime.now():
+        raise ValueError("Ending date must be in the future")
+    
+    
+    
+    
     return created_booking
 
 
@@ -66,12 +95,23 @@ def delete_booking(id:str,request: Request, response: Response):
     
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Booking with ID {id} not found")
 
+'''DELETE ALL BOOKINGS'''
+@router.delete("/delete_all", response_description="Delete all bookings")
+def delete_all_household(request: Request, response: Response):
+    household_deleted = request.app.database["booking"].delete_many({})
+
+    if household_deleted.deleted_count:
+        response.status_code = status.HTTP_204_NO_CONTENT
+        return response
+
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Booking not found")
+
 '''LIST ACTIVE BOOKINGS (no relational)'''
 @router.get("_actives",response_description="List all active bookings", response_model=List[Booking])
 def list_active_bookings(request: Request):
     active_bookings = list(request.app.database["booking"].find({
     "ending": {
-        "$gte": str(datetime.datetime.now())
+        "$gte": str(datetime.now())
     }},limit=100).sort("start", -1))
     return active_bookings
 
@@ -80,7 +120,7 @@ def list_active_bookings(request: Request):
 def list_incative_bookings(request: Request):
     active_bookings = list(request.app.database["booking"].find({
     "ending": {
-        "$lte": str(datetime.datetime.now())
+        "$lte": str(datetime.now())
     }},limit=100).sort("start", -1))
     return active_bookings
 
@@ -97,4 +137,3 @@ def get_ordered_bookings_by_household_id(household_id: str, request: Request, re
 
     bookings = list(request.app.database["booking"].find({"household.id": household_id},{'_id':0},limit = 100).sort("start", -1))
     return bookings
-    
