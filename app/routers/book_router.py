@@ -83,6 +83,16 @@ def update_book(id: str, request: Request, booking: BookingUpdate = Body(...)):
 
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Book with ID {id} not found")
 
+'''DELETE ALL BOOKINGS'''
+@router.delete("/delete_all", response_description="Delete all bookings")
+def delete_all_household(request: Request, response: Response):
+    household_deleted = request.app.database["booking"].delete_many({})
+
+    if household_deleted.deleted_count:
+        response.status_code = status.HTTP_204_NO_CONTENT
+        return response
+
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Booking not found")
 
 '''DELETE BOOKING'''
 @router.delete("/{id}", response_description="Delete a booking")
@@ -95,16 +105,6 @@ def delete_booking(id:str,request: Request, response: Response):
     
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Booking with ID {id} not found")
 
-'''DELETE ALL BOOKINGS'''
-@router.delete("/delete_all", response_description="Delete all bookings")
-def delete_all_household(request: Request, response: Response):
-    household_deleted = request.app.database["booking"].delete_many({})
-
-    if household_deleted.deleted_count:
-        response.status_code = status.HTTP_204_NO_CONTENT
-        return response
-
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Booking not found")
 
 '''LIST ACTIVE BOOKINGS (no relational)'''
 @router.get("_actives",response_description="List all active bookings", response_model=List[Booking])
