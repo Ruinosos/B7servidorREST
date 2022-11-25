@@ -162,3 +162,5 @@ cython_debug/
 
 **/*.geojson
 .vscode
+
+auth.ini
