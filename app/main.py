@@ -6,6 +6,7 @@ from routers.household_router import router as household_router
 from routers.book_router import router as book_router
 from routers.address_router import router as address_router
 from routers.users_router import router as user_router
+from Imgur.Imgur import authenticate
 
 config = dotenv_values(".env")
 
@@ -17,7 +18,7 @@ def startup_db_client():
     app.mongodb_client = MongoClient(config["ATLAS_URI"])
     app.database = app.mongodb_client[config["DB_NAME"]]
     print("Connected to the MongoDB database!")
-
+    # app.imgur_client = authenticate()
 
 @app.on_event("shutdown")
 def shutdown_db_client():
