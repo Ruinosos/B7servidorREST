@@ -1,7 +1,7 @@
 from email.headerregistry import Address
 from fastapi import APIRouter, Body, Request, Response, HTTPException, status
 from fastapi.encoders import jsonable_encoder
-from model import Address, AddressUpdate
+from app.model import Address, AddressUpdate
 from typing import List
 from typing import Optional
 

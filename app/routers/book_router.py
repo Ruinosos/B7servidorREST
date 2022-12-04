@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Body, Request, Response, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from typing import List
-from model import Booking,BookingUpdate
+from app.model import Booking,BookingUpdate
 from datetime import datetime 
-from routers import household_router
+from app.routers import household_router
 
 router = APIRouter()
 

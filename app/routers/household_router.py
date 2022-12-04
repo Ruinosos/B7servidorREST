@@ -2,8 +2,8 @@ from fastapi import APIRouter, Body, Request, Response, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from typing import List
 from typing import Optional
-from model import User, Address
-from model import Household, HouseholdUpdate
+from app.model import User, Address
+from app.model import Household, HouseholdUpdate
 from datetime import datetime
 import requests
 

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Body, Request, Response, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from typing import List, Optional, Union
-from model import User
+from app.model import User
 
 router = APIRouter()
 
