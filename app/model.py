@@ -164,6 +164,7 @@ class BookedHousehold(BaseModel):
     id : str
     title: str
     address: BookedHouseholdAddress
+    photo: str
 
 class Booking(BaseModel):
     id: str = Field(default_factory=uuid.uuid4, alias="id")
