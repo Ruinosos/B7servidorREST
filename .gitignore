@@ -6,6 +6,9 @@
 # C extensions
 *.so
 
+.env
+client_secret.json
+
 # Distribution / packaging
 .Python
 build/
